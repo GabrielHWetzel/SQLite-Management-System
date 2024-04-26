@@ -23,6 +23,9 @@ class SpeedCalculator(QWidget):
         calculate_button.clicked.connect(self.calculate)
         self.calculated_label = QLabel("")
 
+        self.unit_convert_combo_box = QComboBox()
+        self.unit_convert_combo_box.addItems(['Metric (km)', 'Imperial (mi)'])
+
         # Grid
         grid.addWidget(distance_label, 0, 0)
         grid.addWidget(self.distance_line_edit, 0, 1)
@@ -32,21 +35,27 @@ class SpeedCalculator(QWidget):
         grid.addWidget(self.time_line_edit, 1, 1)
 
         grid.addWidget(calculate_button, 2, 1)
+        grid.addWidget(self.unit_convert_combo_box, 2, 2)
 
         grid.addWidget(self.calculated_label, 4, 0, 1, 3)
 
         self.setLayout(grid)
 
     def calculate(self):
-        distance = int(self.distance_line_edit.text())
-        time = int(self.time_line_edit.text())
+        distance = float(self.distance_line_edit.text())
+        time = float(self.time_line_edit.text())
+
         average_speed = distance / time
 
-        match self.unit_combo_box.currentText():
-            case 'Metric (km)':
-                unit_type = "km"
+        match self.unit_convert_combo_box.currentText():
             case 'Imperial (mi)':
                 unit_type = "mi"
+                if self.unit_combo_box.currentText() == 'Metric (km)':
+                    average_speed = round(average_speed * 0.6213712, 2)
+            case 'Metric (km)':
+                unit_type = "km"
+                if self.unit_combo_box.currentText() == 'Imperial (mi)':
+                    average_speed = round(average_speed * 1.609344, 2)
 
         self.calculated_label.setText(f"Average Speed: {average_speed} {unit_type}/h")
 
