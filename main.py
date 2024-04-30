@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         # Menu Items
         file_menu_item = self.menuBar().addMenu("&File")
         help_menu_item = self.menuBar().addMenu("&Help")
+        edit_menu_item = self.menuBar().addMenu("&Edit")
 
         # File Menu
         add_student_action = QAction("Add Student", self)
@@ -27,6 +28,11 @@ class MainWindow(QMainWindow):
         # Help Menu
         about_action = QAction("About", self)
         help_menu_item.addAction(about_action)
+
+        # Edit Menu
+        search_action = QAction("Search", self)
+        search_action.triggered.connect(self.search_student)
+        edit_menu_item.addAction(search_action)
 
         # Main Table
         self.table = QTableWidget()
@@ -49,6 +55,10 @@ class MainWindow(QMainWindow):
 
     def add_student(self):
         dialog = InsertDialog()
+        dialog.exec()
+
+    def search_student(self):
+        dialog = SearchDialog()
         dialog.exec()
 
 
@@ -99,6 +109,30 @@ class InsertDialog(QDialog):
 
         # Refresh
         window.load_data()
+
+
+class SearchDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        # Title
+        self.setWindowTitle("Search Student")
+        self.setFixedSize(300, 150)
+
+        # Student Information
+        self.student_name = QLineEdit()
+        self.student_name.setPlaceholderText("Name")
+
+        search = QPushButton("Search")
+        search.clicked.connect(self.search_student)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.student_name)
+        layout.addWidget(search)
+        self.setLayout(layout)
+
+    def search_student(self):
+        pass
 
 
 app = QApplication(sys.argv)
