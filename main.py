@@ -1,4 +1,6 @@
 import sys
+
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QMainWindow, QDialog, QWidget, \
     QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QComboBox
 from PyQt6.QtGui import QAction
@@ -17,22 +19,24 @@ class MainWindow(QMainWindow):
 
         # Menu Items
         file_menu_item = self.menuBar().addMenu("&File")
-        help_menu_item = self.menuBar().addMenu("&Help")
         edit_menu_item = self.menuBar().addMenu("&Edit")
+        help_menu_item = self.menuBar().addMenu("&Help")
 
         # File Menu
         add_student_action = QAction("Add Student", self)
         add_student_action.triggered.connect(self.add_student)
         file_menu_item.addAction(add_student_action)
 
-        # Help Menu
-        about_action = QAction("About", self)
-        help_menu_item.addAction(about_action)
-
         # Edit Menu
         search_action = QAction("Search", self)
         search_action.triggered.connect(self.search_student)
         edit_menu_item.addAction(search_action)
+
+        # Help Menu
+        about_action = QAction("About", self)
+        about_action.triggered.connect(self.about)
+        help_menu_item.addAction(about_action)
+
 
         # Main Table
         self.table = QTableWidget()
@@ -61,6 +65,9 @@ class MainWindow(QMainWindow):
         dialog = SearchDialog()
         dialog.exec()
 
+    def about(self):
+        pass
+
 
 class InsertDialog(QDialog):
     def __init__(self):
@@ -81,6 +88,7 @@ class InsertDialog(QDialog):
         self.mobile_number = QLineEdit()
         self.mobile_number.setPlaceholderText("Phone Number")
 
+        # Submit
         submit = QPushButton("Submit")
         submit.clicked.connect(self.add_student)
 
@@ -93,12 +101,13 @@ class InsertDialog(QDialog):
         self.setLayout(layout)
 
     def add_student(self):
+
         # Get Values
         name = self.student_name.text()
         course = self.course_name.itemText(self.course_name.currentIndex())
         mobile = self.mobile_number.text()
 
-        # Insert to Database
+        # Insert into Database
         connection = sqlite3.connect("database.db")
         cursor = connection.cursor()
         cursor.execute("INSERT INTO students (name, course, mobile) VALUES (?, ?, ?)",
@@ -123,16 +132,33 @@ class SearchDialog(QDialog):
         self.student_name = QLineEdit()
         self.student_name.setPlaceholderText("Name")
 
+        # Search
         search = QPushButton("Search")
         search.clicked.connect(self.search_student)
 
+        # Layout
         layout = QVBoxLayout()
         layout.addWidget(self.student_name)
         layout.addWidget(search)
         self.setLayout(layout)
 
     def search_student(self):
-        pass
+
+        # Get Student
+        name = self.student_name.text()
+
+        # Get Values from database
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        result = cursor.execute("SELECT * FROM students WHERE name=?", (name,))
+
+        # Display Selection on Table
+        items = window.table.findItems(name, Qt.MatchFlag.MatchFixedString)
+        for item in items:
+            window.table.item(item.row(), 1).setSelected(True)
+
+        cursor.close()
+        connection.close()
 
 
 app = QApplication(sys.argv)
