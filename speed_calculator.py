@@ -42,6 +42,8 @@ class SpeedCalculator(QWidget):
         self.setLayout(grid)
 
     def calculate(self):
+        unit_type = "km"
+
         distance = float(self.distance_line_edit.text())
         time = float(self.time_line_edit.text())
 
