@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Student Management System")
 
         # Size
-        self.setMinimumSize(440, 500)
+        self.setMinimumSize(500, 500)
 
         # Menu Items
         file_menu_item = self.menuBar().addMenu("&File")
@@ -201,6 +201,7 @@ class EditDialog(QDialog):
     def __init__(self):
         super().__init__()
         index = window.table.currentRow()
+        self.student_id = window.table.item(index, 0).text()
         student_name = window.table.item(index, 1).text()
         student_course = window.table.item(index, 2).text()
         student_mobile = window.table.item(index, 3).text()
@@ -234,12 +235,34 @@ class EditDialog(QDialog):
         self.setLayout(layout)
 
     def edit_student(self):
-        pass
+        # Get Values
+        name = self.student_name.text()
+        course = self.course_name.itemText(self.course_name.currentIndex())
+        mobile = self.mobile_number.text()
+
+        # Insert into Database
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        cursor.execute("UPDATE students SET name = ?, course = ?, mobile = ? WHERE id = ?",
+                       (name, course, mobile, self.student_id))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        # Refresh
+        window.load_data()
 
 
 class DeleteDialog(QDialog):
     def __init__(self):
         super().__init__()
+
+        # Title
+        self.setWindowTitle("Deleting Student")
+        self.setFixedSize(300, 150)
+
+    def delete_student(self):
+        pass
 
 
 app = QApplication(sys.argv)
