@@ -2,8 +2,9 @@ import sys
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QMainWindow, QDialog, QWidget, \
-    QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QComboBox
-from PyQt6.QtGui import QAction
+    QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QComboBox, \
+    QToolBar, QStatusBar
+from PyQt6.QtGui import QAction, QIcon
 import sqlite3
 
 
@@ -15,7 +16,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Student Management System")
 
         # Size
-        self.setMinimumSize(402, 500)
+        self.setMinimumSize(440, 500)
 
         # Menu Items
         file_menu_item = self.menuBar().addMenu("&File")
@@ -23,12 +24,12 @@ class MainWindow(QMainWindow):
         help_menu_item = self.menuBar().addMenu("&Help")
 
         # File Menu
-        add_student_action = QAction("Add Student", self)
+        add_student_action = QAction(QIcon("icons/add.png"),"Add Student", self)
         add_student_action.triggered.connect(self.add_student)
         file_menu_item.addAction(add_student_action)
 
         # Edit Menu
-        search_action = QAction("Search", self)
+        search_action = QAction(QIcon("icons/search.png"),"Search", self)
         search_action.triggered.connect(self.search_student)
         edit_menu_item.addAction(search_action)
 
@@ -37,6 +38,12 @@ class MainWindow(QMainWindow):
         about_action.triggered.connect(self.about)
         help_menu_item.addAction(about_action)
 
+        # Toolbar
+        toolbar = QToolBar()
+        toolbar.setMovable(True)
+        self.addToolBar(toolbar)
+        toolbar.addAction(add_student_action)
+        toolbar.addAction(search_action)
 
         # Main Table
         self.table = QTableWidget()
@@ -45,6 +52,13 @@ class MainWindow(QMainWindow):
         self.table.verticalHeader().setVisible(False)
         self.setCentralWidget(self.table)
         self.load_data()
+
+        # Status bar
+        self.statusbar = QStatusBar()
+        self.setStatusBar(self.statusbar)
+
+        # Detect cell click
+        self.table.cellClicked.connect(self.cell_clicked)
 
     def load_data(self):
         connection = sqlite3.connect("database.db")
@@ -57,6 +71,20 @@ class MainWindow(QMainWindow):
                 self.table.setItem(row_number, column_number, QTableWidgetItem(str(data)))
         connection.close()
 
+    def cell_clicked(self):
+        edit_button = QPushButton("Edit")
+        edit_button.clicked.connect(self.edit_student)
+        delete_button = QPushButton("Delete")
+        delete_button.clicked.connect(self.delete_student)
+
+        children = self.findChildren(QPushButton)
+        if children:
+            for child in children:
+                self.statusbar.removeWidget(child)
+
+        self.statusbar.addWidget(edit_button)
+        self.statusbar.addWidget(delete_button)
+
     def add_student(self):
         dialog = InsertDialog()
         dialog.exec()
@@ -65,8 +93,18 @@ class MainWindow(QMainWindow):
         dialog = SearchDialog()
         dialog.exec()
 
+    def edit_student(self):
+        dialog = EditDialog()
+        dialog.exec()
+
+    def delete_student(self):
+        dialog = DeleteDialog()
+        dialog.exec()
+
     def about(self):
         pass
+
+
 
 
 class InsertDialog(QDialog):
@@ -159,6 +197,43 @@ class SearchDialog(QDialog):
 
         cursor.close()
         connection.close()
+
+
+class EditDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        # Title
+        self.setWindowTitle("Edit Student")
+        self.setFixedSize(300, 150)
+
+        # Student Information
+        self.student_name = QLineEdit()
+        self.student_name.setPlaceholderText("Name")
+
+        self.course_name = QComboBox()
+        courses = ["Biology", "Math", "Astronomy", "Physics"]
+        self.course_name.addItems(courses)
+
+        self.mobile_number = QLineEdit()
+        self.mobile_number.setPlaceholderText("Phone Number")
+
+        # Submit
+        submit = QPushButton("Submit")
+        submit.clicked.connect(self.edit_student)
+
+        # Layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.student_name)
+        layout.addWidget(self.course_name)
+        layout.addWidget(self.mobile_number)
+        layout.addWidget(submit)
+        self.setLayout(layout)
+
+
+class DeleteDialog(QDialog):
+    def __init__(self):
+        super().__init__()
 
 
 app = QApplication(sys.argv)
