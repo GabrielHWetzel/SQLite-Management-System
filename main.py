@@ -8,6 +8,9 @@ from PyQt6.QtGui import QAction, QIcon
 import sqlite3
 
 
+class DatabaseConnection:
+    def __init__(self):
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
