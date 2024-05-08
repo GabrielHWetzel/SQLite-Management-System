@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         self.statusbar.addWidget(delete_button)
 
     def add_student(self):
-        dialog = InsertDialog()
+        dialog = AddDialog()
         dialog.exec()
 
     def search_student(self):
@@ -105,9 +105,7 @@ class MainWindow(QMainWindow):
         pass
 
 
-
-
-class InsertDialog(QDialog):
+class AddDialog(QDialog):
     def __init__(self):
         super().__init__()
 
@@ -202,20 +200,25 @@ class SearchDialog(QDialog):
 class EditDialog(QDialog):
     def __init__(self):
         super().__init__()
+        index = window.table.currentRow()
+        student_name = window.table.item(index, 1).text()
+        student_course = window.table.item(index, 2).text()
+        student_mobile = window.table.item(index, 3).text()
 
         # Title
         self.setWindowTitle("Edit Student")
         self.setFixedSize(300, 150)
 
         # Student Information
-        self.student_name = QLineEdit()
+        self.student_name = QLineEdit(student_name)
         self.student_name.setPlaceholderText("Name")
 
         self.course_name = QComboBox()
-        courses = ["Biology", "Math", "Astronomy", "Physics"]
+        courses = ["Astronomy", "Biology", "Physics", "Math"]
         self.course_name.addItems(courses)
+        self.course_name.setCurrentText(student_course)
 
-        self.mobile_number = QLineEdit()
+        self.mobile_number = QLineEdit(student_mobile)
         self.mobile_number.setPlaceholderText("Phone Number")
 
         # Submit
@@ -229,6 +232,9 @@ class EditDialog(QDialog):
         layout.addWidget(self.mobile_number)
         layout.addWidget(submit)
         self.setLayout(layout)
+
+    def edit_student(self):
+        pass
 
 
 class DeleteDialog(QDialog):
