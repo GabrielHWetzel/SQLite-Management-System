@@ -102,7 +102,8 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def about(self):
-        pass
+        dialog = AboutDialog()
+        dialog.exec()
 
 
 class AddDialog(QDialog):
@@ -317,6 +318,19 @@ class DeleteDialog(QDialog):
         confirmation_widget.setWindowTitle("Success")
         confirmation_widget.setText(self.student_name.text() + " was removed successfully")
         confirmation_widget.exec()
+
+
+class AboutDialog(QMessageBox):
+    def __init__(self):
+        super().__init__()
+
+        # Title
+        self.setWindowTitle("About")
+        content = """
+This app was created as part of the "Python Mega Course" to study the PyQt6 module and object oriented programing.
+Anyone can use, change, or adapt the code inside this app
+        """
+        self.setText(content)
 
 
 app = QApplication(sys.argv)
